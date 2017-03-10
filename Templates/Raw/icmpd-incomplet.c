@@ -48,7 +48,7 @@ int main (int argc, char *argv[])
   struct icmp *icmp;
   struct udphdr *udp;
 
-  if ((rawSocket = socket(...., ....., .....)) <0) {
+  if ((rawSocket = socket(AF_INET, SOCKSTREAM, 0)) <0) {
     perror ("erreur socket");
     exit (1); }
   
