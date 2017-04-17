@@ -1,0 +1,26 @@
+Analyse TCP:
+
+
+Filtre:
+
+	L'outil wireshark nous permet de faire des captures des traces de connexions. Pour pouvoir les analyser correctement, nous avons d'abord filtrer les informations pour ne garder que les échanges entre notre connexion Wifi et le serveur de l'université de lorraine.
+	Ainsi en tapant "ifconfing" nous avons pu avoir accès à notre adresse ip : "sur wlp3s0 : inet adr:192.168.1.14". Puis en envoyant un ping à l'adresse de telecom nancy("ping www.telecomnancy.univ-lorraine.fr"), nous avons pu accedé à l'adresse ip du serveur: "PING front.pweb.dc.univ-lorraine.fr (193.50.135.38) 56(84) bytes of data".
+	Sur wireshark nous avons donc appliqué le filtre:
+"(ip.src == 192.168.1.14 and ip.dst==193.50.135.38) or (ip.dst==192.168.1.14 and ip.src==193.50.135.38)".
+
+
+Sans proxy:
+
+On voit alors l'établissement de la connexion (SYN, SYN-ACK, ACK) qui initialise la connexion TCP (image 1). Il y a plusieur renvoie de paquet car notre connexion est un peu lente.
+Ensuite le premier paquet HTTP est envoyé par notre client: requête (GET)
+Puis de multiples échanges TCP se font (image 2):
+	- le serveur envoie des "TCP segment of a reassembled PDU", c'est à dire des paquets contenant des données d'un protocole étant une surcouche à TCP (HTTP içi).
+	- notre client renvoie des ACK pour confirmer la réception des paquets
+
+
+
+
+
+Avec proxy
+
+Normalement pareil sauf que la connection et les échanges se font avec le proxy et pas le serveur...

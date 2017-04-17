@@ -3,8 +3,8 @@
 #include "util.h"
 
 // pour telecom-> pourquoi ça marche pas???
-// parfois : Erreur dans getaddrinfo de socket d'envoi: Success
 
+// essaie de se co sur qqchose ou il a pas demandé
 
 int main(int argc, char *argv[]){
 	
@@ -67,9 +67,8 @@ int main(int argc, char *argv[]){
 		
 		// si connexion client, on créé une socket de dialogue client et on la met dans une place libre du tableau
 		if( FD_ISSET(ipv4, &pset) || FD_ISSET(ipv6, &pset) ){
-			
-			printf("\n ( nouveau client )\n\n");
 			i = placelibre(tab_clients);
+			printf("\n ( nouveau client %d)\n\n",i);
 			
 			// si c'est en ipv4
 			if( FD_ISSET(ipv4, &pset) ){	
@@ -89,7 +88,6 @@ int main(int argc, char *argv[]){
 		i=0;
 		//Parcour des tableau des clients et serveurs connectés
 		while((nbfd>0)&&(i<FD_SETSIZE)){
-			
 			// on regarde si on a une réponse du serveur
 			if(tab_servers[i] >= 0 && FD_ISSET(tab_servers[i], &pset)){
 				printf("\n---------------------------- message serveur ---------------------\n");
@@ -97,7 +95,6 @@ int main(int argc, char *argv[]){
 				printf("\n\n\n\n");
 				nbfd--;
 			}
-
 			// on regarde si on a une requete du client
 			if(tab_clients[i] >= 0 && FD_ISSET(tab_clients[i], &pset)){
 				printf("\n---------------------------- message client ----------------------\n");

@@ -16,7 +16,7 @@ void newServer(struct addrinfo** result, const char *serv_port){
 	//  getaddrinfo() retourne dans "result" la liste des structures possibles avec les données mises dans "hints"
 	// le 1er result est avec AF_INET(ipv4) le suivant (result-> ai_next) est avec AF_INET6(ipv6)
 	if (getaddrinfo(NULL,serv_port,&hints,result)!=0){
-	   	perror ("Erreur dans getaddrinfo du proxy\n");
+	   	perror ("Erreur dans getaddrinfo du proxy");
 		exit (1);
 	}
 }
@@ -35,13 +35,13 @@ int newEcouteSocket(struct addrinfo *result){
 	// Permet le multi-usage de l'adresse(Enlève le message "Address already in use")
 	unsigned int ok = 1;
 	if(setsockopt(ecouteSocket, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok)) < 0){
-		perror ("erreur options socket\n");
+		perror ("erreur options socket");
 		exit(2);
 	}
 
 	// Lie la socket à l'adresse 
 	if (bind(ecouteSocket,result->ai_addr, result->ai_addrlen) <0) {
-		perror ("servecho: erreur bind\n");
+		perror ("servecho: erreur bind");
 		exit (1);
 	}
 
@@ -53,13 +53,13 @@ int enEcoute(int ipv4,int ipv6,fd_set* rset){
 	
 	// Paramétrer le nombre de connexion "pending" pour ipv4
 	if(listen(ipv4, SOMAXCONN) <0) {
-		perror ("servecho: erreur listen ipv4\n");
+		perror ("servecho: erreur listen ipv4");
 		exit (1);
 	}
 
 	// Paramétrer le nombre de connexion "pending" pour ipv4
 	if(listen(ipv6, SOMAXCONN) <0) {
-		perror ("servecho: erreur listen ipv6\n");
+		perror ("servecho: erreur listen ipv6");
 		exit (1);
 	}
 
@@ -81,7 +81,7 @@ int newClient(int serverSocket, fd_set* rset){
 	int clientSocket = accept(serverSocket,(struct sockaddr *)&cli_addr,(socklen_t *)&clilen);
 
 	if(clientSocket < 0) {
-		perror("erreur création socket client\n");
+		perror("erreur création socket client");
 		exit (1);
 	}
 
@@ -105,35 +105,26 @@ int newEnvoiSocket(char* hostname, fd_set* rset){
 	
 	//get addrinfo
 	if(getaddrinfo(hostname, "80", &hints, &result)){
-		perror ("Erreur dans getaddrinfo de socket d'envoi\n");
+		perror ("Erreur dans getaddrinfo de socket d'envoi");
 		exit (1);
 	}
 
-	/*int err = etaddrinfo(hostname, "80", &hints, &result);
-	if (err){   
-	    if (err == EAI_SYSTEM)
-		fprintf(stderr, "looking up www.example.com: %s\n", strerror(errno));
-	    else
-		fprintf(stderr, "looking up www.example.com: %s\n", gai_strerror(err));
-	    return -1;
-	}*/
-
 	// Ouvrir une socket (socket STREAM)
 	if ((envoiSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol)) <0) {
-		perror("Erreur dans l'ouverture dans la socket\n");
+		perror("Erreur dans l'ouverture dans la socket");
 		exit (2);
 	}
 
 	// Permet le multi-usage de l'adresse(Enlève le message "Address already in use")
 	unsigned int ok = 1;
 	if(setsockopt(envoiSocket, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok)) < 0){
-		perror ("erreur options socket\n");
+		perror ("erreur options socket");
 		exit(2);
 	}
 
 	// se connect au server
 	if(connect (envoiSocket, result->ai_addr, result->ai_addrlen)  < 0){
-		printf("Problème connect pour la socket web\n");
+		perror ("Problème connect pour la socket de discution avec serveur web");
 		exit(1);
 	}
 	
