@@ -31,12 +31,13 @@ void getHost(char fromClient[], char host[]){
 		j++;
 	}
 	host[j]='\0';
-	//printf("host: %s\n",host);
+	printf("new host: %s\n",host);
 }
 
 
 // retourne le fd du serveur
-void messageServeur(int tab_servers[], int tab_clients[],int i,fd_set* rset){
+void messageDuServeur(int tab_servers[], int tab_clients[],int i,fd_set* rset){
+
 	char fromServer[MAXLINE];
 	memset(fromServer, 0, MAXLINE);
 	int recept = recv(tab_servers[i], fromServer, MAXLINE, 0);
@@ -46,21 +47,22 @@ void messageServeur(int tab_servers[], int tab_clients[],int i,fd_set* rset){
 		close(tab_servers[i]);
 		FD_CLR(tab_servers[i], rset);
 		tab_servers[i] = -1;
-		printf("La connexion avec le serveur %d a été fermée ",i);
-		perror("");
+		//printf("La connexion avec le serveur %d a été fermée ",i);
 	}
 	//on envoie la reponse
 	else{
-		printf("%s", fromServer);
+		//printf("%s", fromServer);
 
 		if(send(tab_clients[i], fromServer, recept, 0)==-1){
 			perror("Erreur dans l'envoi de la reponse du serveur");
 		}
 	}
+
 }
 
 // retourne le fd du client
-int messageClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* rset){
+int messageDuClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* rset){
+	
 	char fromClient[MAXLINE];
 	char typeRequete[MAXTYPE];
 	char host[MAXHOST];
@@ -74,8 +76,7 @@ int messageClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* rs
 		close(tab_clients[i]);
 		FD_CLR(tab_clients[i], rset);
 		tab_clients[i] = -1;
-		printf("La connexion avec le client %d a été fermée",i);
-		perror("");
+		//printf("La connexion avec le client %d a été fermée",i);
 	}
 	else{
 		//on recupere le type de requete
@@ -84,40 +85,30 @@ int messageClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* rs
 		//On regarde les requêtes GET
 		if(strcmp(typeRequete, "GET") == 0){
 
-			// On cree une socket serveur au même l'indice i que sa sockets client correspondante
-			// On recupère au passage le hostname du client
-			printf("\n( nouveau serveur %d)\n\n",i);
+			// On recupère le hostname du client
 			getHost(fromClient,host);
-			
-			// pour bloquer ce sera ici
 
-			//if((strcmp(host,"c.qlfsat.co.uk")!=0)){
-				tab_servers[i] = newEnvoiSocket(host, rset);
-				maxfdp1 = MaJ_maxFD(tab_servers[i],maxfdp1);
+			// On cree une socket serveur au même l'indice i que sa sockets client correspondante
+			tab_servers[i] = newClient(host);
 			
-				// On envoie la requête au serveur
-				if(send(tab_servers[i], fromClient, recept, 0)==-1){
-					perror("Erreur dans la requete");
-				}
-			/*}
-			else{
-				close(tab_clients[i]);
-				FD_CLR(tab_clients[i], rset);
-				tab_clients[i] = -1;
-				printf("La connexion avec le client %d a été fermée\n",i);
-			}*/
-
+			// On envoie la requête au serveur
+			if(send(tab_servers[i], fromClient, recept, 0)==-1){
+				perror("Erreur dans la requete");
+			}
+			
+			//Mise à jour variables
+			FD_SET(tab_servers[i], rset);
+			maxfdp1 = MaJ_maxFD(tab_servers[i],maxfdp1);
 		}
 		//si la requête est CLOSE on ferme le fd, on l'enleve sur rset et on remet le fd à -1
 		else if(strcmp(typeRequete, "CLOSE")){
 			close(tab_clients[i]);
 			FD_CLR(tab_clients[i], rset);
 			tab_clients[i] = -1;
-			printf("La connexion avec le client %d a été fermée\n",i);
+			//printf("La connexion avec le client %d a été fermée\n",i);
 		}
 		
-		printf("%s", fromClient);
-		
+		//printf("%s", fromClient);
 	}
 	return maxfdp1;
 }

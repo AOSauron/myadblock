@@ -2,80 +2,65 @@
 #include "util.h"
 
 // initialise les inforamtions du serveur
-void newServer(struct addrinfo** result, const char *serv_port){
-	struct addrinfo hints;
-	memset(&hints,0,sizeof(hints));
-	hints.ai_family=AF_UNSPEC; /* Allow IPv4 or IPv6 */
-	hints.ai_socktype=SOCK_STREAM; /* Dialogue socket */
-	hints.ai_flags=AI_PASSIVE; /* For wildcard IP address */
-	hints.ai_protocol=0; /* Any protocol */
-	hints.ai_canonname = NULL;
-    	hints.ai_addr = NULL;
-   	hints.ai_next = NULL;
-  
-	//  getaddrinfo() retourne dans "result" la liste des structures possibles avec les données mises dans "hints"
-	// le 1er result est avec AF_INET(ipv4) le suivant (result-> ai_next) est avec AF_INET6(ipv6)
-	if (getaddrinfo(NULL,serv_port,&hints,result)!=0){
-	   	perror ("Erreur dans getaddrinfo du proxy");
-		exit (1);
+void newServer(int (*server)[2],const char *serv_port){
+	int sock[2], ecode, num_sock = 0, on = 1;
+	struct addrinfo *res, *rres, hints;
+
+	// use getaddrinfo to get information about the server sockets we may create
+	memset(&hints, 0, sizeof hints) ;
+	hints.ai_flags = AI_PASSIVE;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_family = AF_UNSPEC;
+
+	ecode = getaddrinfo(NULL, serv_port, &hints, &rres);
+	if (ecode) {
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(ecode));
+		exit(1);
 	}
+
+	// for each of these possible server sockets
+	for (res = rres; res; res = res->ai_next) {
+		sock[num_sock] = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+		if (sock[num_sock] < 0) {
+			perror("socket() error");
+			continue;
+		}
+
+		// set the SO_REUSEADDR option
+		// (this will avoid EADDRINUSE errors if we restart the server too quickly)
+		setsockopt(sock[num_sock], SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
+
+		if (res->ai_family == AF_INET6) {
+			setsockopt(sock[num_sock], IPPROTO_IPV6, IPV6_V6ONLY, (char *)&on, sizeof(on));
+		}
+
+		// bind the socket
+		if (bind(sock[num_sock], res->ai_addr, res->ai_addrlen) < 0) {
+			perror("bind() error");
+			exit(1);
+		}
+
+		listen(sock[num_sock], SOMAXCONN);
+		
+		//on passe au server
+		(*server)[num_sock]= sock[num_sock];
+
+		num_sock++;
+	}
+
+	// free memory
+	freeaddrinfo(rres);
 }
+
 
 // renvoie le fd d'une nouvelle socket d'écoute
-int newEcouteSocket(struct addrinfo *result){
-	int ecouteSocket;
+int newCommunicationSock(int serverSocket){
+	/*struct sockaddr_storage from;
+	socklen_t len = sizeof(from);
+
+	// accept the client
+	int clientSocket = accept(serverSocket, (struct sockaddr *)&from, &len);*/
 	
-	// Ouvrir une socket (socket STREAM)
-	if( (ecouteSocket=socket(result->ai_family, result->ai_socktype, result->ai_protocol)) < 0) { 
-		perror ("erreur socket");
-		exit (2);
-	}
-	
-
-	// Permet le multi-usage de l'adresse(Enlève le message "Address already in use")
-	unsigned int ok = 1;
-	if(setsockopt(ecouteSocket, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok)) < 0){
-		perror ("erreur options socket");
-		exit(2);
-	}
-
-	// Lie la socket à l'adresse 
-	if (bind(ecouteSocket,result->ai_addr, result->ai_addrlen) <0) {
-		perror ("servecho: erreur bind");
-		exit (1);
-	}
-
-	return ecouteSocket;
-}
-
-//renvoie le plus grand des 2 Fd
-int enEcoute(int ipv4,int ipv6,fd_set* rset){
-	
-	// Paramétrer le nombre de connexion "pending" pour ipv4
-	if(listen(ipv4, SOMAXCONN) <0) {
-		perror ("servecho: erreur listen ipv4");
-		exit (1);
-	}
-
-	// Paramétrer le nombre de connexion "pending" pour ipv4
-	if(listen(ipv6, SOMAXCONN) <0) {
-		perror ("servecho: erreur listen ipv6");
-		exit (1);
-	}
-
-	//initialisation descripteurs
-	FD_SET(ipv4, rset);
-	FD_SET(ipv6, rset);
-
-	//mis à jour du plus grand fd
-	int maxfdp1 = ipv4 +1;
-	maxfdp1 = MaJ_maxFD(ipv6,maxfdp1);
-
-	return maxfdp1;
-}
-
-// renvoie le fd d'une nouvelle socket d'écoute
-int newClient(int serverSocket, fd_set* rset){
 	struct sockaddr_in cli_addr;
 	int clilen = sizeof(cli_addr);
 	int clientSocket = accept(serverSocket,(struct sockaddr *)&cli_addr,(socklen_t *)&clilen);
@@ -85,54 +70,74 @@ int newClient(int serverSocket, fd_set* rset){
 		exit (1);
 	}
 
-	// On ajoute le nouveau client à rset
-	FD_SET(clientSocket, rset);
-
 	return clientSocket;
 }
 
-// renvoie le fd d'une nouvelle socket d'envoi
-int newEnvoiSocket(char* hostname, fd_set* rset){
-	struct addrinfo *result;
-	struct addrinfo hints;
-	int envoiSocket;
+// renvoie le fd d'une nouvelle socket d'envoi au serveur web
+int newClient(char *host){
 
-	memset(&hints,0,sizeof(hints));
-	hints.ai_family=AF_UNSPEC; /* Allow IPv4 or IPv6 */
-	hints.ai_socktype=SOCK_STREAM; /* Dialogue socket */
-	hints.ai_flags=0; 
-	hints.ai_protocol=0; /* Any protocol */
+	// try to connect to the server using IPv4
+	int sock = try_with_family(host, "80", AF_INET);
+
+	if(sock == -1){
+		// try to connect to the server using IPv6
+		sock = try_with_family(host, "80", AF_INET6);
+		if(sock == -1){
+			perror ("Problème création client");
+			exit(1);	
+		}
+	}	
+
+	return sock;
+}
+
+// renvoie le fd du client selon sa famille (ipv4/ipv6)
+int try_with_family(char *host, char *serv, int family){
+	int sock, ecode, on = 1;
+	struct addrinfo *res;
+	struct addrinfo hints = {
+		0,
+		0,
+		SOCK_STREAM,
+		0,
+		0,
+		NULL,
+		NULL,
+		NULL
+	};
+
+	// get an available server address for the given family
+	hints.ai_family = family;
 	
-	//get addrinfo
-	if(getaddrinfo(hostname, "80", &hints, &result)){
-		perror ("Erreur dans getaddrinfo de socket d'envoi");
-		exit (1);
+	ecode = getaddrinfo(host, serv, &hints, &res);
+	if (ecode) {
+		fprintf(stderr, "getaddrinfo() error: %s\n", gai_strerror(ecode));
+		return -1;
 	}
 
-	// Ouvrir une socket (socket STREAM)
-	if ((envoiSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol)) <0) {
-		perror("Erreur dans l'ouverture dans la socket");
-		exit (2);
+	// create a socket
+	if ((sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0) {
+		freeaddrinfo(res);
+		perror("socket() error");
+		return -1;
 	}
 
-	// Permet le multi-usage de l'adresse(Enlève le message "Address already in use")
-	unsigned int ok = 1;
-	if(setsockopt(envoiSocket, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok)) < 0){
-		perror ("erreur options socket");
-		exit(2);
+	// Options
+	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
+	if (family == AF_INET6) {
+		setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&on, sizeof(on));
 	}
 
-	// se connect au server
-	if(connect (envoiSocket, result->ai_addr, result->ai_addrlen)  < 0){
-		perror ("Problème connect pour la socket de discution avec serveur web");
-		exit(1);
+	// connect
+	if (connect(sock, res->ai_addr, res->ai_addrlen) < 0) {
+		close(sock);
+		freeaddrinfo(res);
+		perror("connect() error");
+		return -1;
 	}
 	
-	//plus besoin de la structure
-	freeaddrinfo(result);
-	
-	// On ajoute le nouveau client à rset
-	FD_SET(envoiSocket, rset);
+	// free memory
+	freeaddrinfo(res);
 
-	return envoiSocket;
+	return sock;
 }

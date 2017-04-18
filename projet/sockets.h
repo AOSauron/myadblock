@@ -11,19 +11,17 @@
 #include<arpa/inet.h>
 #include<netdb.h>
 
-// initialise les inforamtions du serveur
-void newServer(struct addrinfo** result, const char *serv_port);
+
+// renvoie les fd ipv4 et ipv6 du serveur
+void newServer(int (*server)[2],const char *serv_port);
 
 // renvoie le fd d'une nouvelle socket d'écoute
-int newEcouteSocket(struct addrinfo *result);
+int newCommunicationSock(int serverSocket);
 
-//renvoie le plus grand des 2 Fd
-int enEcoute(int ipv4,int ipv6,fd_set* rset);
+// renvoie le fd d'une nouvelle socket d'envoi au serveur web
+int newClient(char *host);
 
-// renvoie le fd d'une nouvelle socket d'écoute
-int newClient(int serverSocket, fd_set* rset);
-
-// renvoie le fd d'une nouvelle socket d'envoi
-int newEnvoiSocket(char* hostname, fd_set* rset);
+// renvoie le fd du client selon sa famille (ipv4/ipv6)
+int try_with_family(char *host, char *serv, int family);
 
 #endif

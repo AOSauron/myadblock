@@ -23,9 +23,9 @@ void getTypeRequete(char fromClient[], char typeRequete[]);
 void getHost(char fromClient[], char host[]);
 
 // retourne le fd du serveur
-void messageServeur(int tab_servers[], int tab_clients[],int i,fd_set* rset);
+void messageDuServeur(int tab_servers[], int tab_clients[],int i,fd_set* rset);
 
 // retourne le fd du client
-int messageClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* rset);
+int messageDuClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* rset);
 
 #endif
