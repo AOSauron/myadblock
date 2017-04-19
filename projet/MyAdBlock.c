@@ -50,7 +50,7 @@ int main(int argc, char *argv[]){
 	
 
 
-	printf("MyAddBlock est bien lancé.\n");
+	printf("\nMyAddBlock est bien lancé.\n\n");
 
 	for(;;){
 

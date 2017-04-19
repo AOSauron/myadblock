@@ -12,28 +12,31 @@ void getTypeRequete(char fromClient[], char typeRequete[]){
 	typeRequete[i] = '\0';
 }
 
-// extrait le hostname de la requete dans "fromClient" et le met dans "host"
 void getHost(char fromClient[], char host[]){
 	int i=0;
 	int j=0;
+	char hostSearch[7] = "";
 
-	//On passe le type de requete et le http://
-	while(fromClient[i] != '/'){
+	//On passe jusqu'à ce qu'on arrive à "Host: "
+	while(strcmp(hostSearch,"Host: ")!=0){
+		for(j=0;j<6;j++){
+			hostSearch[j] = fromClient[i+j];
+		}
+		hostSearch[6]='\0';
 		i++;
 	}
+	
 	// on saute le 2eme '/'
-	i=i+2;
-
+	i=i+5;
+	j=0;
 	//On récupère le nom jusqu'au prochain '/'
-	while(fromClient[i] != '/'){
+	while(fromClient[i] != '\n'){
 		host[j] = fromClient[i];
 		i++;
 		j++;
 	}
-	host[j]='\0';
-	printf("new host: %s\n",host);
+	host[j-1]='\0';
 }
-
 
 // retourne le fd du serveur
 void messageDuServeur(int tab_servers[], int tab_clients[],int i,fd_set* rset){
@@ -84,24 +87,38 @@ int messageDuClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* 
 
 		//On regarde les requêtes GET
 		if(strcmp(typeRequete, "GET") == 0){
-
+			
 			// On recupère le hostname du client
-			getHost(fromClient,host);
+			getHost(fromClient,host);	
 
-			// On cree une socket serveur au même l'indice i que sa sockets client correspondante
-			tab_servers[i] = newClient(host);
+			if((strcmp(host, "www.01net.com") == 0) ){
+			//if(1 /*faudrai faire la méthode*/){
+				// On cree une socket serveur au même l'indice i que sa sockets client correspondante
+				tab_servers[i] = newClient(host);
+	
+				// On envoie la requête au serveur
+				if(send(tab_servers[i], fromClient, recept, 0)==-1){
+					perror("Erreur dans la requete");
+				}
 			
-			// On envoie la requête au serveur
-			if(send(tab_servers[i], fromClient, recept, 0)==-1){
-				perror("Erreur dans la requete");
+				//Mise à jour variables
+				FD_SET(tab_servers[i], rset);
+				maxfdp1 = MaJ_maxFD(tab_servers[i],maxfdp1);
 			}
-			
-			//Mise à jour variables
-			FD_SET(tab_servers[i], rset);
-			maxfdp1 = MaJ_maxFD(tab_servers[i],maxfdp1);
+			// si c'est une pub
+			else{
+				printf(" bloqué :");
+				char buf[1024] = "HTTP/1.0 200 OK \n";
+    				send(tab_clients[i], buf, strlen(buf), 0);
+				close(tab_clients[i]);
+				FD_CLR(tab_clients[i], rset);
+				tab_clients[i] = -1;
+			}
+
+			printf(" %s  %s\n",typeRequete,host);
 		}
-		//si la requête est CLOSE on ferme le fd, on l'enleve sur rset et on remet le fd à -1
-		else if(strcmp(typeRequete, "CLOSE")){
+		//si la requête est autre que GET on ferme le fd, on l'enleve sur rset et on remet le fd à -1
+		else {
 			close(tab_clients[i]);
 			FD_CLR(tab_clients[i], rset);
 			tab_clients[i] = -1;
@@ -112,6 +129,4 @@ int messageDuClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* 
 	}
 	return maxfdp1;
 }
-
-
 
