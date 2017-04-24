@@ -32,7 +32,7 @@ void iniListe(){
 	int k=0;
 	int l=0;
 
-    	fp = fopen("MyAdList", "r");
+    	fp = fopen("src/MyAdList", "r");
     	if (fp == NULL)
 		exit(EXIT_FAILURE);
 	
@@ -71,23 +71,23 @@ void iniListe(){
 		// on enleve les coms'
 		if(line[0] != '!'){
 			if(line[0]=='@' && line[1]== '@'){
-				exceptListe[i]=malloc(read*sizeof(char));
+				exceptListe[i]=malloc((read+1)*sizeof(char));
 				strcpy(exceptListe[i],line);
 				i++;
 			}	
 			else if(line[0]=='|' && line[1]== '|'){
-				BlockingByDomainName[j]=malloc(read*sizeof(char));
+				BlockingByDomainName[j]=malloc((read+1)*sizeof(char));
 				strcpy(BlockingByDomainName[j],line);
 				j++;
 			}	
 			else if(line[0]=='|' && line[read-1]== '|'){
-				BlockingExactAddress[k]=malloc(read*sizeof(char));
+				BlockingExactAddress[k]=malloc((read+1)*sizeof(char));
 				strcpy(BlockingExactAddress[k],line);
 				k++;
 			}
 			else{
 				printf("coucou41 %s\n",line);
-				BlockingByAddressParts[l]=malloc(read*sizeof(char));
+				BlockingByAddressParts[l]=malloc((read+1)*sizeof(char));
 				strcpy(BlockingByAddressParts[l],line);
 				l++;
 			}
