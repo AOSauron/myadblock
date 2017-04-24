@@ -1,12 +1,12 @@
 CC = -c -Wall -Wextra
 SRC = src/
 
-main : MyAdBlock.o sockets.o messages.o util.o
-	gcc MyAdBlock.o sockets.o messages.o util.o -o MyAdBlock -g
+main : myAdBlock.o sockets.o messages.o util.o
+	gcc myAdBlock.o sockets.o messages.o util.o -o myAdBlock -g
 	rm *.o
 
-MyAdBlock.o : $(SRC)MyAdBlock.c $(SRC)sockets.h $(SRC)messages.h $(SRC)util.h
-	gcc $(CC) $(SRC)MyAdBlock.c -g
+myAdBlock.o : $(SRC)myAdBlock.c $(SRC)sockets.h $(SRC)messages.h $(SRC)util.h
+	gcc $(CC) $(SRC)myAdBlock.c -g
 
 sockets.o : $(SRC)sockets.c $(SRC)sockets.h $(SRC)util.h
 	gcc $(CC) $(SRC)sockets.c -g
@@ -19,4 +19,4 @@ util.o : $(SRC)util.c $(SRC)util.h
 
 clean :
 	rm *.o
-	rm MyAdBlock
+	rm myAdBlock
