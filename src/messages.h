@@ -12,15 +12,18 @@
 #include<netdb.h>
 
 #define MAXLINE 5000
-#define SERV_PORT 7777
 #define MAXTYPE 50
 #define MAXHOST 100
+#define MAXURL 1000
 
 // extrait le type de la requete dans "fromClient" et le met dans "typeRequete"
 void getTypeRequete(char fromClient[], char typeRequete[]);
 
 // extrait le hostname de la requete dans "fromClient" et le met dans "host"
 void getHost(char fromClient[], char host[]);
+
+// extrait l'URl de la requete dans "fromClient" et le met dans "host"
+void getURL(char fromClient[], char host[]);
 
 // retourne le fd du serveur
 void messageDuServeur(int tab_servers[], int tab_clients[],int i,fd_set* rset);

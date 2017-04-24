@@ -39,6 +39,33 @@ void getHost(char fromClient[], char host[]){
 	host[j-1]='\0';
 }
 
+void getURL(char fromClient[], char host[]){
+	int i=0;
+	int j=0;
+	char hostSearch[8] = "";
+	
+	//On passe jusqu'à ce qu'on arrive à "Host: "
+	while(strcmp(hostSearch,"http://")!=0){
+		
+		for(j=0;j<7;j++){
+			hostSearch[j] = fromClient[i+j];
+		}
+		hostSearch[7]='\0';
+		i++;
+	}
+	
+	// on saute le 2eme '/'
+	i--;
+	j=0;
+	//On récupère le nom jusqu'au prochain '/'
+	while(fromClient[i] != ' '){
+		host[j] = fromClient[i];
+		i++;
+		j++;
+	}
+	host[j]='\0';
+}
+
 // retourne le fd du serveur
 void messageDuServeur(int tab_servers[], int tab_clients[],int i,fd_set* rset){
 
@@ -70,6 +97,7 @@ int messageDuClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* 
 	char fromClient[MAXLINE];
 	char typeRequete[MAXTYPE];
 	char host[MAXHOST];
+	char URL[MAXURL];
 	int maxfdp1 = maxFD;
 
 	memset(fromClient, 0, MAXLINE);
@@ -90,10 +118,12 @@ int messageDuClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* 
 		if(strcmp(typeRequete, "GET") == 0){
 			
 			// On recupère le hostname du client
-			getHost(fromClient,host);	
+			getHost(fromClient,host);
+	
+			getURL(fromClient,URL);
 
-			if((strcmp(host, "www.01net.com") == 0) ){
-			//if(1 /*faudrai faire la méthode*/){
+			//if((strcmp(host, "www.01net.com") == 0) ){
+			if(contains(URL)==false){
 				// On cree une socket serveur au même l'indice i que sa sockets client correspondante
 				tab_servers[i] = newClient(host);
 	
@@ -116,7 +146,7 @@ int messageDuClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* 
 				tab_clients[i] = -1;
 			}
 
-			printf(" %s  %s\n",typeRequete,host);
+			printf(" %s  %s\n",typeRequete, host);
 		}
 		//si la requête est autre que GET on ferme le fd, on l'enleve sur rset et on remet le fd à -1
 		else {

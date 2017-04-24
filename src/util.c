@@ -22,6 +22,49 @@ int MaJ_maxFD(int fd,int maxfdp1){
 	return maxFD;
 }
 
+bool contains(char URL[]){
+	int i;
+	for(i=0;i<sizeList;i++){
+		if(strstr(URL, MyAdList[i])!=NULL){
+			printf("Token bloquant : %s\n", MyAdList[i]);
+			return true;
+		}
+	}
+	return false;
+}
+
+void iniListe(){
+	FILE * fp;
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t read;
+	int i=0;
+
+    	fp = fopen("src/MyAdListLight", "r");
+    	if (fp == NULL)
+		exit(EXIT_FAILURE);
+	
+	// on compte le nb de ligne
+	while ((read = getline(&line, &len, fp)) != -1) {
+		i++;
+	}
+	
+	// on initialise easyListe
+	MyAdList = malloc(i*sizeof(char*));
+	sizeList=i; 
+
+	// on se remet le debut du fichier
+	fseek(fp, 0, SEEK_SET);
+
+	i=0;
+	while ((read = getline(&line, &len, fp)) != -1) {
+		MyAdList[i]=malloc(read*sizeof(char));
+		strncpy(MyAdList[i],line,read-1);
+		i++;	
+	}
+    	fclose(fp);
+}
+/*
 void iniListe(){
 	FILE * fp;
 	char * line = NULL;
@@ -71,29 +114,28 @@ void iniListe(){
 		// on enleve les coms'
 		if(line[0] != '!'){
 			if(line[0]=='@' && line[1]== '@'){
-				exceptListe[i]=malloc((read+1)*sizeof(char));
-				strcpy(exceptListe[i],line);
+				exceptListe[i]=malloc(read*sizeof(char));
+				strncpy(exceptListe[i],line+2,read-3);
 				i++;
 			}	
 			else if(line[0]=='|' && line[1]== '|'){
-				BlockingByDomainName[j]=malloc((read+1)*sizeof(char));
-				strcpy(BlockingByDomainName[j],line);
+				BlockingByDomainName[j]=malloc(read*sizeof(char));
+				strncpy(BlockingByDomainName[j],line+2,read-3);
 				j++;
 			}	
 			else if(line[0]=='|' && line[read-1]== '|'){
-				BlockingExactAddress[k]=malloc((read+1)*sizeof(char));
-				strcpy(BlockingExactAddress[k],line);
+				BlockingExactAddress[k]=malloc(read*sizeof(char));
+				strncpy(BlockingExactAddress[k],line,read-1);
 				k++;
 			}
-			else{
-				printf("coucou41 %s\n",line);
-				BlockingByAddressParts[l]=malloc((read+1)*sizeof(char));
-				strcpy(BlockingByAddressParts[l],line);
+			else if(line[0]!='\n'){
+				BlockingByAddressParts[l]=malloc(read*sizeof(char));
+				strncpy(BlockingByAddressParts[l],line,read-1);
 				l++;
 			}
 		}	
 	}
-	
     	fclose(fp);
 	
-}
+	
+}*/
