@@ -4,10 +4,10 @@
 
 // pour telecom-> pourquoi ça marche pas???
 
-// essaie de se co sur qqchose ou il a pas demandé
 
 int main(int argc, char *argv[]){
-	
+	iniListe();
+
 	// declarations
 	int server[2];
 	int tab_ecoute_clients[FD_SETSIZE];
@@ -18,6 +18,7 @@ int main(int argc, char *argv[]){
 	fd_set rset;
 	fd_set pset;
 	
+
 	// il faut renseigner le port
 	if(argc != 2){
 		printf("usage : servecho numero_port_serveur\n");

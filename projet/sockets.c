@@ -55,11 +55,6 @@ void newServer(int (*server)[2],const char *serv_port){
 
 // renvoie le fd d'une nouvelle socket d'écoute
 int newCommunicationSock(int serverSocket){
-	/*struct sockaddr_storage from;
-	socklen_t len = sizeof(from);
-
-	// accept the client
-	int clientSocket = accept(serverSocket, (struct sockaddr *)&from, &len);*/
 	
 	struct sockaddr_in cli_addr;
 	int clilen = sizeof(cli_addr);

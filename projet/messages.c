@@ -2,6 +2,7 @@
 #include "messages.h"
 #include "util.h"
 
+
 // extrait le type de la requete dans "fromClient" et le met dans "typeRequete"
 void getTypeRequete(char fromClient[], char typeRequete[]){
 	int i = 0;
