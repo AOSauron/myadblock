@@ -69,14 +69,14 @@ int newCommunicationSock(int serverSocket){
 }
 
 // renvoie le fd d'une nouvelle socket d'envoi au serveur web
-int newClient(char *host){
+int newClient(char *host, char* port){
 
 	// try to connect to the server using IPv4
-	int sock = try_with_family(host, "80", AF_INET);
+	int sock = try_with_family(host, port, AF_INET);
 
 	if(sock == -1){
 		// try to connect to the server using IPv6
-		sock = try_with_family(host, "80", AF_INET6);
+		sock = try_with_family(host, port, AF_INET6);
 		if(sock == -1){
 			perror ("Problème création client");
 			exit(1);	

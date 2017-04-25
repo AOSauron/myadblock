@@ -92,16 +92,12 @@ int main(int argc, char *argv[]){
 			
 			// on regarde si on a une réponse du serveur
 			if(tab_ecoute_servers[i] >= 0 && FD_ISSET(tab_ecoute_servers[i], &pset)){
-				//printf("\n---------------------------- message serveur ---------------------\n");
 				messageDuServeur(tab_ecoute_servers, tab_ecoute_clients,i,&rset);
-				//printf("\n\n\n\n");
 				nbfd--;
 			}
 			// on regarde si on a une requete du client
 			if(tab_ecoute_clients[i] >= 0 && FD_ISSET(tab_ecoute_clients[i], &pset)){
-				//printf("\n---------------------------- nouvelle requete ----------------------\n");
 				maxfdp1 = messageDuClient(tab_ecoute_clients,tab_ecoute_servers,i,maxfdp1,&rset);
-				//printf("\n\n\n\n");
 				nbfd--;
 			}
 

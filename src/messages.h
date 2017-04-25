@@ -31,4 +31,6 @@ void messageDuServeur(int tab_servers[], int tab_clients[],int i,fd_set* rset);
 // retourne le fd du client
 int messageDuClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* rset);
 
+// retourne 0 si la requete est traitée, 1 si elle n'est pas traitée
+int requeteNonTraitee(char typeRequete[]);
 #endif

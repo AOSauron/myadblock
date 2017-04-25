@@ -19,7 +19,7 @@ void newServer(int (*server)[2],const char *serv_port);
 int newCommunicationSock(int serverSocket);
 
 // renvoie le fd d'une nouvelle socket d'envoi au serveur web
-int newClient(char *host);
+int newClient(char *host, char* port);
 
 // renvoie le fd du client selon sa famille (ipv4/ipv6)
 int try_with_family(char *host, char *serv, int family);

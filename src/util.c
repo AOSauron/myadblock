@@ -26,7 +26,7 @@ bool contains(char URL[]){
 	int i;
 	for(i=0;i<sizeList;i++){
 		if(strstr(URL, MyAdList[i])!=NULL){
-			printf("Token bloquant : %s\n", MyAdList[i]);
+			//printf("Token bloquant : %s\n", MyAdList[i]);
 			return true;
 		}
 	}
