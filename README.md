@@ -37,7 +37,7 @@
  - Surfez librement sans publicité sur le net !
 
 ### Travail d'analyse, wireshark et templates
-  Le travail d'analyse des différentes étapes du projet est présenté dans le court rapport au format pdf [rapportMyAdBlock.pdf](rapportMyAdBlock.pdf). Certaines images explicatives de wireshark (avec et sans proxy) sont présentes dans le dossier `images/`.
+  Le travail d'analyse des différentes étapes du projet est présenté dans le court rapport au format pdf [rapportMyAdBlock](rapportMyAdBlock.pdf). Certaines images explicatives de wireshark (avec et sans proxy) sont présentes dans le dossier `images/`.
   Les templates et autres modèles utilisés pour construire le serveur proxy (surtout pour la partie serveur, échanges clients-serveur) sont présents dans le dossier `templates/`.
 
 ### Principe d'exclusion des publicités
