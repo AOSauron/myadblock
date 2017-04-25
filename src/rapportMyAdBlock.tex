@@ -17,6 +17,16 @@
 \usepackage{listings}
 \usepackage[]{algorithm2e}
 \usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage[normalem]{ulem}
+\usepackage{hyperref}
+\usepackage[colorlinks = true,
+            linkcolor = blue,
+            urlcolor  = blue,
+            citecolor = blue,
+            anchorcolor = blue]{hyperref}
+
+\newcommand{\MYhref}[3][blue]{\href{#2}{\color{#1}{#3}}}%
 
 
 \begin{titlepage}
@@ -36,8 +46,20 @@ language=C,
 framexleftmargin=pt,
 basicstyle = \footnotesize}
 
+\makeatletter
+\DeclareUrlCommand\ULurl@@{%
+  \def\UrlFont{\ttfamily\color{blue}}%
+  \def\UrlLeft{\uline\bgroup}%
+  \def\UrlRight{\egroup}}
+\def\ULurl@#1{\hyper@linkurl{\ULurl@@{#1}}{#1}}
+\DeclareRobustCommand*\ULurl{\hyper@normalise\ULurl@}
+\makeatother
+
+
+
 \begin{document}
 \maketitle
+
 
 \hypersetup{linkcolor=blue}
 
@@ -119,7 +141,7 @@ Puis de multiples échanges TCP se font (image 2):
 
 \lstset{language=C}
 
-\renewcommand{\lstlistingname}{Algorithm 2.2.}
+\renewcommand{\lstlistingname}{Algorithme}
 \begin{lstlisting}[caption=Algorithme de détermination d'adresse serveur à contacter (messages.c)]
 
 //Extrait hostname de "fromClient" et le met dans "host"
@@ -159,7 +181,7 @@ void getHost(char fromClient[], char host[]){
 
 \lstset{language=C}
 
-\renewcommand{\lstlistingname}{Algorithm 2.3.}
+\renewcommand{\lstlistingname}{Algorithme}
 \begin{lstlisting}[caption=Algorithme de gestion multi-clients et gestion IPv4/IPv6 (myAdBlock.c)]
 for(;;){
 	//Initialisation des fd_set puis SELECT
@@ -209,11 +231,61 @@ for(;;){
 \end{lstlisting}
 
 \newpage
-\hypersetup{linkcolor=blue}
-\section*{\hspace{0.6cm}2.4\hspace{0.6cm}Extension du proxy : HTTPS}
-\hspace{1cm} Pour gérer les connexions HTTPS entrantes, nous avons utilisé la méthode \textit{CONNECT}, permettant d'établir un tunnel sans déchiffrement. Une fois captée, la connexion HTTPS est filtrée comme une connexion HTTP standard. On peut le voir dans l'algorithme ci-dessous; on remarque par ailleurs que notre 'bloqueur', ou plutôt comparateur, se matérialise par l'appel à \textit{contains()} de \textit{util.c}. Il consiste à comparer chaque token de notre liste \textit{MyEasyListLight}, qui est une version très allégée et simplifiée de la banque \href{https://easylist.to}{EasyList} (divisée par 10). Notre bloqueur s'en trouve pour le coup moins efficace, mais plus rapide et il est plus simple d'appréhender on fonctionnement.\\
+\section*{\hspace{0.6cm}2.4\hspace{0.6cm}Principe d'exclusion des publicités}
 
-\renewcommand{\lstlistingname}{Algorithm 2.4.}
+\hspace{1cm}Le code source de \textit{myAdBlock} ainsi que la liste \textit{MyAdListLight} des hosts de publicités sont dans le dossier \textit{src/}. Libre à vous d'ajouter des hosts dans la liste. \\
+
+\hspace{0.40cm}Cette liste est une version allégée et plus simple de la liste de  \MYhref{https://easylist.to}{EasyList}, qui constitue notre banque de base de hosts de publicités. Voir  \MYhref{https://easylist.to/easylist/easylist.txt}{EasyList pour AdBlock Plus 2.0} pour consulter la banque complète. Chaque connexion entrante est filtrée, parsée et comparée à cette liste. Si elle appartient à cette liste, cette connexion est simplement bloquée (il s'agit d'une publicité). Compte tenu du fait que notre liste est réduite et ne tient pas comtpe des expressions régulières de la liste originale, myAdBlock est donc moins efficace que AdBlock (utilisant la même banque), mais est beaucoup plus simple et léger; et il est plus simple d'appréhender on fonctionnement. \\
+
+\hspace{0.40cm}On remarque par ailleurs que notre 'bloqueur', ou plutôt comparateur, se matérialise par l'appel à \textit{contains()} de \textit{util.c}. Il consiste à vérifier que chaque token de notre liste \textit{MyEasyListLight} n'est pas contenu dans l'URL de la connexion entrante (voir Algorithme 3 et 4).\\
+
+\renewcommand{\lstlistingname}{Algorithme}
+\begin{lstlisting}[caption=Fonction contains() (util.c)]
+bool contains(char URL[]){
+	int i;
+	for(i=0;i<sizeList;i++){
+		if(strstr(URL, MyAdList[i])!=NULL){
+			return true;
+		}
+	}
+	return false;
+}
+\end{lstlisting}
+
+\renewcommand{\lstlistingname}{Algorithme}
+\begin{lstlisting}[caption=Fonction iniListe() qui charge la liste MyAdListLight(util.c)]
+void iniListe() {
+        FILE * fp; char * line = NULL; size_t len = 0; ssize_t read; int i=0;
+
+        fp = fopen("src/MyAdListLight", "r");
+        if (fp == NULL)	exit(EXIT_FAILURE);
+	
+	// on compte le nb de ligne
+	while ((read = getline(&line, &len, fp)) != -1) { i++; }
+	
+	MyAdList = malloc(i*sizeof(char*));
+	sizeList=i; 
+
+	// on se remet le debut du fichier
+	fseek(fp, 0, SEEK_SET); i=0;
+
+	while ((read = getline(&line, &len, fp)) != -1) {
+		MyAdList[i]=malloc(read*sizeof(char));
+		strncpy(MyAdList[i],line,read-1);
+		i++;	
+	}
+        fclose(fp);
+}
+\end{lstlisting}
+
+
+
+\newpage
+\hypersetup{linkcolor=blue}
+\section*{\hspace{0.6cm}2.5\hspace{0.6cm}Extension du proxy : HTTPS}
+\hspace{1cm} Pour gérer les connexions HTTPS entrantes, nous avons utilisé la méthode \textit{CONNECT}, permettant d'établir un tunnel sans déchiffrement. Une fois captée, la connexion HTTPS est filtrée comme une connexion HTTP standard. On peut le voir dans l'algorithme ci-dessous.\\
+
+\renewcommand{\lstlistingname}{Algorithme}
 \begin{lstlisting}[caption=Partie gérant l'HTTPS issue du CONNECT.]
 
 else if(strcmp(typeRequete, "CONNECT") == 0){
