@@ -37,7 +37,7 @@
  - Surfez librement sans publicité sur le net !
 
 ### Travail d'analyse, wireshark et templates
-  Le travail d'analyse des différentes étapes du projets est présenté dans le rapport léger au format pdf `rapportMyAdBlock.pdf`. Certaines images explicatives (wireshark : avec et sans proxy) sont présentes dans le dossier `images/`.
+  Le travail d'analyse des différentes étapes du projets est présenté dans le rapport léger au format pdf [rapportMyAdBlock.pdf](rapportMyAdBlock.pdf). Certaines images explicatives (wireshark : avec et sans proxy) sont présentes dans le dossier `images/`.
   Les templates et autres modèles utilisés pour construire le serveur proxy (surtout pour la partie serveur, échanges clients-serveur) sont présents dans le dossier `templates/`.
 
 ### Principe d'exclusion des publicités
@@ -45,4 +45,4 @@
   Chaque connexion entrante est filtrée, parsée et comparée à cette liste. Si elle appartient à cette liste, cette connexion est simplement bloquée (il s'agit d'une publicité).
   Compte tenu du fait que notre liste est réduite et ne tient pas comtpe des expressions régulières de la liste originale, myAdBlock est donc moins efficace que AdBlock (utilisant la même banque), mais est beaucoup plus simple et léger; son principe de fonctionnement est donc facile à comprendre.
 
-  Dans sa dernière version, myAdBlock est capable de filtrer des connexions **http_s_** en plus des connexions **http**
+  Dans sa dernière version, myAdBlock est capable de filtrer des connexions **https** en plus des connexions **http**
