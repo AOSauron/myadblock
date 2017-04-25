@@ -188,7 +188,7 @@ int messageDuClient(int tab_clients[],int tab_servers[],int i,int maxFD,fd_set* 
 				FD_SET(tab_servers[i], rset);
 				maxfdp1 = MaJ_maxFD(tab_servers[i],maxfdp1);
 				
-				// on repond au client
+				// on repond au client : "HTTP/1.0 200 Connection established";
 	  			send(tab_clients[i], buffConnectionEstablished, strlen(buffConnectionEstablished), 0);
 			}
 			// si c'est une pub

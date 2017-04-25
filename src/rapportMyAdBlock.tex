@@ -24,8 +24,8 @@
 \title{Projet du module de Réseaux et Systèmes  Avancés:\\ \textit{myAdBlock}, un \textit{proxy} bloqueur de publicités}
 \author{GARCIA  Guillaume et DUGUE Clément}
 \date{\today}
-\titlepic{\includegraphics[scale=0.5]{I=../images/telecomnancy.png}
-\includegraphics[scale=1]{../images/universitelorraine.jpg}}
+\titlepic{\includegraphics[scale=0.5]{Images/telecomnancy.png}
+\includegraphics[scale=1]{Images/universitelorraine.jpg}}
 \end{titlepage}
 
 
@@ -44,10 +44,10 @@ basicstyle = \footnotesize}
 \chapter*{1\hspace{1cm}Questions sur le proxy, analyse à l'aide de Wireshark}
 
 \section*{\hspace{0.6cm}1.1\hspace{0.6cm}Filtre}
-\hspace{1cm}L'outil wireshark nous permet de faire des captures des traces de connexions. Pour pouvoir les analyser correctement, nous avons d'abord filtré les informations pour ne garder que les échanges entre notre connexion Wifi et le serveur de l'université de Lorraine. Ainsi en tapant "ifconfing" dnas un terminal nous avons pu avoir accès à notre adresse ip : \["sur wlp3s0 : inet adr:192.168.1.14"\]
-\hspace{1cm}Puis en effectuant un ping de l'adresse de telecom nancy ("ping www.telecomnancy.univ-lorraine.fr"), nous avons pu acceder à l'adresse ip du serveur: \["PING front.pweb.dc.univ-lorraine.fr (193.50.135.38) 56(84) bytes of data".\]
+\hspace{1cm}L'outil wireshark nous permet de faire des captures des traces de connexions. Pour pouvoir les analyser correctement, nous avons d'abord filtré les informations pour ne garder que les échanges entre notre connexion Wifi et le serveur de l'université de Lorraine. Ainsi en tapant "ifconfing" dnas un terminal nous avons pu avoir accès à notre adresse ip : \[sur wlp3s0 : inet adr:192.168.1.14\]
+\hspace{1cm}Puis en effectuant un ping de l'adresse de telecom nancy ("ping www.telecomnancy.univ-lorraine.fr"), nous avons pu acceder à l'adresse ip du serveur: \[PING front.pweb.dc.univ-lorraine.fr (193.50.135.38) 56(84) bytes of data\]
 \hspace{1cm}Sur \textit{wireshark} nous avons donc appliqué le filtre :
-\["(ip.src == 192.168.1.14 and ip.dst==193.50.135.38) or (ip.dst==192.168.1.14 and ip.src==193.50.135.38)"\]
+\[(ip.src == 192.168.1.14 and ip.dst==193.50.135.38)\] \[ or (ip.dst==192.168.1.14 and ip.src==193.50.135.38)\]
 
 
 \section*{\hspace{0.6cm}1.2\hspace{0.6cm}Sans proxy}
@@ -60,12 +60,12 @@ Puis de multiples échanges TCP se font (image 2):
 
 \begin{figure}[p]
    \caption{\label{étiquette} Connexion}
-   \includegraphics[scale=0.35]{../images/Connexion.png}
+   \includegraphics[scale=0.38]{Images/Connexion.png}
 \end{figure}
 
 \begin{figure}[p]
    \caption{\label{étiquette} Echanges}
-   \includegraphics[scale=0.35]{../images/Echange.png}
+   \includegraphics[scale=0.38]{Images/Echange.png}
 \end{figure}
 
 
@@ -77,7 +77,7 @@ Puis de multiples échanges TCP se font (image 2):
 
 \begin{figure}[h]
    \caption{\label{étiquette} Avec Proxy}
-   \includegraphics[scale=0.35]{../images/Proxy.png}
+   \includegraphics[scale=0.38]{Images/Proxy.png}
 \end{figure}
 
 
@@ -128,7 +128,7 @@ void getHost(char fromClient[], char host[]){
 	int j=0;
 	char hostSearch[7] = "";
 
-	//On passe jusqu'à ce qu'on arrive à "Host: "
+	//On passe jusqu'a ce qu'on arrive a "Host: "
 	while(strcmp(hostSearch,"Host: ")!=0){
 		for(j=0;j<6;j++){
 			hostSearch[j] = fromClient[i+j];
@@ -140,7 +140,7 @@ void getHost(char fromClient[], char host[]){
 	//On saute le 2eme '/'
 	i=i+5;
 	j=0;
-	//On récupère le nom jusqu'au prochain '/'
+	//On recupere le nom jusqu'au prochain '/'
 	while(fromClient[i] != '\n'){
 		host[j] = fromClient[i];
 		i++;
@@ -154,8 +154,8 @@ void getHost(char fromClient[], char host[]){
 \newpage
 
 
-\section*{\hspace{0.6cm}2.3\hspace{0.6cm}Implantation en multi-clients et passage Ipv4/Ipv6}
-\hspace{1cm} Comme vu au TD2, nous avons utilisé la méthode \textit{SELECT()} pour éviter l'utilisation du multiprocessing ("fork()" de serveurs) ce qui a permis de gérer les connexions multiples et simultanées. La primitive \textit{getaddrinfo()} nous permet d'avoir une socket d'écoute pour IPv4 et une autre pour IPv6. L'IPv6 coté client du proxy est également géré dans \textit{socket.c}\\
+\section*{\hspace{0.6cm}2.3\hspace{0.6cm}Implantation du multi-clients et passage Ipv4/Ipv6}
+\hspace{1cm} Comme vu au TD2, nous avons utilisé la méthode \textit{SELECT()} pour éviter l'utilisation du multiprocessing ("fork" de serveurs) ce qui a permis de gérer les connexions multiples et simultanées. La primitive \textit{getaddrinfo()} nous permet d'avoir une socket d'écoute pour IPv4 et une autre pour IPv6. L'IPv6 coté client du proxy est également géré dans \textit{socket.c}\\
 
 \lstset{language=C}
 
