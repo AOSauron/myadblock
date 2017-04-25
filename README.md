@@ -25,19 +25,20 @@
  - Séléctionnez 'Configuration manuelle du proxy'
  - Dans 'HTTP Proxy', rentrez `127.0.0.1`
  - Juste à droite, dans 'Port', rentrez `7777`
- - /!\\ Il est impératif que le numéro de port soit identique aux numéro de port renseigné à l'exécution de MyAdBlock.
+ - /!\\ Il est impératif que le numéro de port soit identique au numéro de port renseigné à l'exécution de MyAdBlock.
  - N'oubliez pas de cocher 'Utiliser ce serveur proxy pour tous les protocoles', pour que myAdBlock puisse filtrer les connexions **https**
  - Surfez librement sans publicité sur le net !
 
 #### Utiliser le proxy sur son pc, sur Google Chrome :
  - Lancez dans un terminal `./myAdBlock 7777`
- - Dans un autre terminal, lancez `google-chrome --proxy-server=127.0.0.1:7777`
- - /!\\ Il est impératif que le numéro de port soit identique aux numéro de port renseigné à l'exécution de MyAdBlock.
- - Cette solution fonctionne rarement. Préférez l'utilisation de Firefox.
+ - Dans un autre terminal, lancez `google-chrome --proxy-server="https=127.0.0.1:7777;http=127.0.0.1:7777"`
+ - /!\\ Il est impératif que le numéro de port dans cette commande soit identique au numéro de port renseigné à l'exécution de MyAdBlock.
+ - Cette solution fonctionne difficilement. Préférez l'utilisation de Firefox.
  - Surfez librement sans publicité sur le net !
 
-### Travail d'analyse et wireshark
-  Le travail d'analyse des différentes étapes du projets est présenté dans le rapport au format pdf `rapportMyAdBlock.pdf`. Certaines réponses et analyses, notamment avec wireshark sont présentes dans le dossier `questions/`, ainsi que certaines images explicatives (wireshark) dans le dossier `images/`.
+### Travail d'analyse, wireshark et templates
+  Le travail d'analyse des différentes étapes du projets est présenté dans le rapport léger au format pdf `rapportMyAdBlock.pdf`. Certaines images explicatives (wireshark) sont présentes dans le dossier `images/`.
+  Les templates et autres modèles utilisés pour construire le serveur proxy (surtout pour la partie serveur, échanges clients-serveur) sont présents dans le dossier `templates/`.
 
 ### Principe d'exclusion des publicités
   Le code source de myAdBlock ainsi que la liste `MyAdListLight` des hosts de publicités sont dans le dossier `src/`. Libre à vous d'ajouter des hosts dans la liste. Cette liste est une version allégée et plus simple de la liste de [easylist.to](https://easylist.to/), qui constitue notre banque de base de hosts de publicités.
