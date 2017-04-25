@@ -37,11 +37,11 @@
  - Surfez librement sans publicité sur le net !
 
 ### Travail d'analyse, wireshark et templates
-  Le travail d'analyse des différentes étapes du projets est présenté dans le rapport léger au format pdf [rapportMyAdBlock.pdf](rapportMyAdBlock.pdf). Certaines images explicatives (wireshark : avec et sans proxy) sont présentes dans le dossier `images/`.
+  Le travail d'analyse des différentes étapes du projet est présenté dans le court rapport au format pdf [rapportMyAdBlock.pdf](rapportMyAdBlock.pdf). Certaines images explicatives de wireshark (avec et sans proxy) sont présentes dans le dossier `images/`.
   Les templates et autres modèles utilisés pour construire le serveur proxy (surtout pour la partie serveur, échanges clients-serveur) sont présents dans le dossier `templates/`.
 
 ### Principe d'exclusion des publicités
-  Le code source de myAdBlock ainsi que la liste `MyAdListLight` des hosts de publicités sont dans le dossier `src/`. Libre à vous d'ajouter des hosts dans la liste. Cette liste est une version allégée et plus simple de la liste de [easylist.to](https://easylist.to/), qui constitue notre banque de base de hosts de publicités.
+  Le code source de myAdBlock ainsi que la liste `MyAdListLight` des hosts de publicités sont dans le dossier `src/`. Libre à vous d'ajouter des hosts dans la liste. Cette liste est une version allégée et plus simple de la liste de [EasyList.to](https://easylist.to/), qui constitue notre banque de base de hosts de publicités. Voir [EasyList pour AdBlock Plus 2.0](https://easylist.to/easylist/easylist.txt) pour consulter la banque complète.
   Chaque connexion entrante est filtrée, parsée et comparée à cette liste. Si elle appartient à cette liste, cette connexion est simplement bloquée (il s'agit d'une publicité).
   Compte tenu du fait que notre liste est réduite et ne tient pas comtpe des expressions régulières de la liste originale, myAdBlock est donc moins efficace que AdBlock (utilisant la même banque), mais est beaucoup plus simple et léger; son principe de fonctionnement est donc facile à comprendre.
 
